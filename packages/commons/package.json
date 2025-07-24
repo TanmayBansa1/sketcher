@@ -9,7 +9,8 @@
     "@repo/typescript-config": "workspace:*"
   },
   "exports": {
-    "./authSchemas": "./src/schemas/authSchemas.ts"
+    "./authSchemas": "./src/schemas/authSchemas.ts",
+    "./roomSchemas": "./src/schemas/roomSchemas.ts"
   },
   "keywords": [],
   "author": "",

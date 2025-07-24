@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { signinSchema, signupSchema } from "@repo/commons/authSchemas";
+import { createRoomSchema } from "@repo/commons/roomSchemas";
 import bcrypt from "bcrypt";
 import db from "@repo/db/prisma";
 import jwt from "jsonwebtoken";
@@ -79,8 +80,29 @@ app.post("/login", async (req: Request, res: Response) => {
 });
 
 app.post("/room",middleware, async (req: Request, res: Response) => {
+    const roomData = createRoomSchema.safeParse(req.body);
+    if(!roomData.success) {
+        return res.status(400).json({
+            message: "Invalid request body",
+            errors: roomData.error.issues.map((issue) => issue.message),
+        });
+    }
 
+    const { name, description, password } = roomData.data;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const room = await db.room.create({
+        data: {
+            name,
+            description,
+            password: hashedPassword,   
+            ownerId: req.userId || "",
+        }
+    })
 
+    res.status(201).json({
+        message: "Room created successfully",
+        roomName: room.name,
+    });
 })
 
 app.listen(3001, () => {

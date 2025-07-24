@@ -21,8 +21,16 @@ model User {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  rooms     Room[]
 }
 
 model Room {
   id        String   @id @default(uuid())
+  name      String
+  description String?
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   String
 }
