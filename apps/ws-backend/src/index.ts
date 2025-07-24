@@ -1,6 +1,9 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import jwt from 'jsonwebtoken';
 import { DecodedTokenSchema } from '@repo/commons/authSchemas';
+import dotenv from 'dotenv';
+dotenv.config();
+
 const wss = new WebSocketServer({ port: 8080 });
 
 const rooms : Record<string, WebSocket[]> = {};
