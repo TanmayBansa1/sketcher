@@ -88,14 +88,15 @@ app.post("/room",middleware, async (req: Request, res: Response) => {
         });
     }
 
-    const { name, description, password } = roomData.data;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const { name, description, password,slug } = roomData.data;
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
     const room = await db.room.create({
         data: {
             name,
             description,
             password: hashedPassword,   
             ownerId: req.userId || "",
+            slug,
         }
     })
 
