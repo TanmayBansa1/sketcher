@@ -22,6 +22,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   rooms     Room[]
+  chats     Chat[]
 }
 
 model Room {
@@ -29,8 +30,21 @@ model Room {
   name      String
   description String?
   password  String?
+  slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   owner     User     @relation(fields: [ownerId], references: [id])
   ownerId   String
+  chats     Chat[]
+}
+
+model Chat{
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    String
+  message   String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
 }
