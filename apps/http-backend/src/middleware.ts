@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import "./types/express.d.ts";
 import { DecodedTokenSchema } from "@repo/commons/authSchemas";
 
 export default async function middleware(req: Request, res: Response, next: NextFunction){
@@ -23,3 +22,4 @@ export default async function middleware(req: Request, res: Response, next: Next
     req.userId = decoded.userId;
     next();
 }
+    
