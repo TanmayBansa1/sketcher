@@ -106,6 +106,39 @@ app.post("/room",middleware, async (req: Request, res: Response) => {
     });
 })
 
+app.get("/chat/:slug",middleware, async (req: Request, res: Response) => {
+    const { slug } = req.params;
+    if(!slug){
+        return res.status(400).json({
+            message: "Slug is required",
+        });
+    }
+    const room = await db.room.findUnique({
+        where: { slug: slug },
+    });
+
+    if(!room){
+        return res.status(404).json({
+            message: "Room not found for the given uid",
+        });
+    }
+
+    const chats = await db.chat.findMany({
+        where: {
+            roomId: room.id,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        take: 50,
+    })
+
+    res.status(200).json({
+        message: "Chats fetched successfully",
+        chats,
+    });
+})
+
 app.listen(3001, () => {
     console.log("Server is running on port 3001");
 });
