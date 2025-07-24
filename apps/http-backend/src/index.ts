@@ -4,8 +4,8 @@ import { createRoomSchema } from "@repo/commons/roomSchemas";
 import bcrypt from "bcrypt";
 import db from "@repo/db/prisma";
 import jwt from "jsonwebtoken";
-import middleware from "./middleware";
-import "./types/express.d.ts";
+import middleware from "./middleware.js";
+// import "./types/express.d.ts";
 
 const app = express();
 app.use(express.json());
