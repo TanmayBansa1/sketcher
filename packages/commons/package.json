@@ -11,7 +11,8 @@
   },
   "exports": {
     "./authSchemas": "./dist/schemas/authSchemas.js",
-    "./roomSchemas": "./dist/schemas/roomSchemas.js"
+    "./roomSchemas": "./dist/schemas/roomSchemas.js",
+    "./wsSchemas": "./dist/schemas/wsSchemas.js"
   },
   "keywords": [],
   "author": "",

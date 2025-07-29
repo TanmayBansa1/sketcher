@@ -1,46 +1,64 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import jwt from 'jsonwebtoken';
-import { DecodedTokenSchema } from '@repo/commons/authSchemas';
 import dotenv from 'dotenv';
+import { checkUserToken } from './util/auth.js';
+import { state } from './state.js';
+import { handleMessage } from './lib/messageHandler.js';
+
 dotenv.config();
 
 const wss = new WebSocketServer({ port: 8080 });
 
-const rooms : Record<string, WebSocket[]> = {};
-
 wss.on('connection', function connection(ws, request) {
   const url = request.url;
   const token = new URLSearchParams(url?.split('?')[1] || '').get('token');
-  if(!token){
-    console.log('No token provided');
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'No token provided'
-    }));
-    ws.close();
-    return;
+  const userId = checkUserToken(ws, token);
+
+  if (!userId) {
+    return; // Connection already closed by checkUserToken
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedTokenSchema;
+  
+  // Add user to state
+  state.addUser(userId, ws);
+  console.log(`User ${userId} connected`);
 
-  if(!decoded.userId){
-    console.log('Invalid token');
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Invalid token'
-    }));
-    ws.close();
-    return;
-  }
+  // Send welcome message
+  ws.send(JSON.stringify({
+    type: 'connected',
+    userId: userId,
+    message: 'Successfully connected to WebSocket server'
+  }));
 
-  ws.on('error', console.error);
-
-  ws.on('message', function message(data) {
-    console.log('received: %s', data);
+  ws.on('error', (error) => {
+    console.error(`WebSocket error for user ${userId}:`, error);
+    state.removeUser(userId);
   });
 
-  ws.send('something');
+  ws.on('close', () => {
+    console.log(`User ${userId} disconnected`);
+    state.removeUser(userId);
+  });
+
+  ws.on('message', function message(data) {
+    try {
+      const messageData = JSON.parse(data.toString());
+      handleMessage(userId, messageData);
+    } catch (error) {
+      console.error('Error parsing message:', error);
+      ws.send(JSON.stringify({
+        type: 'error',
+        message: 'Invalid message format'
+      }));
+    }
+  });
 });
+
+// Periodic cleanup of disconnected users
+setInterval(() => {
+  state.cleanup();
+}, 30000); // Every 30 seconds
+
+console.log('WebSocket server running on port 8080');
 
 
 
