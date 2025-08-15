@@ -5,38 +5,48 @@ import db from "@repo/db/prisma";
 
 export async function syncUser() {
   try {
-    const { userId } = await auth();
+    const { userId:clerkId } = await auth();
     
-    if (!userId) {
+    if (!clerkId) {
       throw new Error("Unauthorized");
     }
     
-    const clerk = await clerkClient();
-    const user = await clerk.users.getUser(userId);
+    const existingUser = await db.user.findUnique({
+      where: {
+        clerkId: clerkId
+      }
+    })
     
-    if (!user.emailAddresses[0]?.emailAddress) {
-      throw new Error("User not found");
+    if (existingUser) {
+      console.log("User already exists:", existingUser);
+      return existingUser;
     }
     
-    const dbUser = await db.user.upsert({
-      where:{
-          id: user.id
-      },
-      update:{
-          id: user.id,
-          email: user.emailAddresses[0]?.emailAddress,
-          name: user.firstName + " " + user.lastName ,
-      },
-      create:{
-          id: user.id,
-          email: user.emailAddresses[0]?.emailAddress,
-          name: user.firstName + " " + user.lastName,
-      }
-  })
+    console.log("Syncing user with ID:", clerkId);
     
+    const clerk = await clerkClient();
+    const user = await clerk.users.getUser(clerkId);
+    
+    if (!user.emailAddresses[0]?.emailAddress) {
+      throw new Error("User email not found");
+    }
+    
+    const email = user.emailAddresses[0].emailAddress;
+    const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User';
+
+    const dbUser = await db.user.create({
+      data: {
+        clerkId: clerkId,
+        email: email,
+        name: name,
+        password: null
+      }
+    });
+    
+    console.log("User synced successfully:", dbUser);
     return dbUser;
   } catch (e) {
-    console.log("Failed to sync user, the error is ->", e);
+    console.error("Failed to sync user:", e);
     throw e;
   }
 } 
