@@ -26,7 +26,7 @@ export default function Home() {
         This is the landing page for sketcher.
       </p>
       <Button>
-        <Link href="/login">Login</Link>
+        <Link href="/sign-in">Login</Link>
       </Button>
     </div>
   );
