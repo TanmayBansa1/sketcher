@@ -1,4 +1,9 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+// next.config.js
+const nextConfig = {
+  outputFileTracingRoot: process.cwd()
+};
 
 export default nextConfig;
+
+
+
