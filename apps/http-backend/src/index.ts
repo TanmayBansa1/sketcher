@@ -11,98 +11,98 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-app.post("/signup", async (req: Request, res: Response) => {
-  const userData = signupSchema.safeParse(req.body);
-  if (!userData.success) {
-    return res.status(400).json({
-      message: "Invalid request body",
-      errors: userData.error.issues.map((issue) => issue.message),
-    });
-  }
+// app.post("/signup", async (req: Request, res: Response) => {
+//   const userData = signupSchema.safeParse(req.body);
+//   if (!userData.success) {
+//     return res.status(400).json({
+//       message: "Invalid request body",
+//       errors: userData.error.issues.map((issue) => issue.message),
+//     });
+//   }
 
-  try {
-    const { email, password, name } = userData.data;
-    const hashedPassword = await bcrypt.hash(password, 10);
+//   try {
+//     const { email, password, name } = userData.data;
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    let user = await db.user.findUnique({
-      where: { email },
-    });
-    if (!user) {
-      user = await db.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          name,
-        },
-      });
-    }
-    const token = jwt.sign(
-      { userId: user.id, password: user.password },
-      process.env.JWT_SECRET as string
-    );
+//     let user = await db.user.findUnique({
+//       where: { email },
+//     });
+//     if (!user) {
+//       user = await db.user.create({
+//         data: {
+//           email,
+//           password: hashedPassword,
+//           name,
+//         },
+//       });
+//     }
+//     const token = jwt.sign(
+//       { userId: user.id, password: user.password },
+//       process.env.JWT_SECRET as string
+//     );
 
-    res.status(201).json({
-      message: "User registered successfully",
-      userName: user.name,
-      token,
-    });
-  } catch (error: unknown) {
-    console.log(error);
-    res.status(500).json({
-      message: "Could not register user",
-      error: error instanceof Error ? error.message : "Unknown error occured",
-    });
-  }
-});
+//     res.status(201).json({
+//       message: "User registered successfully",
+//       userName: user.name,
+//       token,
+//     });
+//   } catch (error: unknown) {
+//     console.log(error);
+//     res.status(500).json({
+//       message: "Could not register user",
+//       error: error instanceof Error ? error.message : "Unknown error occured",
+//     });
+//   }
+// });
 
-app.post("/login", async (req: Request, res: Response) => {
-  const loginData = signinSchema.safeParse(req.body);
-  if (!loginData.success) {
-    return res.status(400).json({
-      message: "Invalid request body",
-      errors: loginData.error.issues.map((issue) => issue.message),
-    });
-  }
-  const { email, password } = loginData.data;
+// app.post("/login", async (req: Request, res: Response) => {
+//   const loginData = signinSchema.safeParse(req.body);
+//   if (!loginData.success) {
+//     return res.status(400).json({
+//       message: "Invalid request body",
+//       errors: loginData.error.issues.map((issue) => issue.message),
+//     });
+//   }
+//   const { email, password } = loginData.data;
 
-  try {
-    const user = await db.user.findUnique({
-      where: { email },
-    });
+//   try {
+//     const user = await db.user.findUnique({
+//       where: { email },
+//     });
 
-    if (!user) {
-      return res.status(401).json({
-        message: "User not found",
-      });
-    }
+//     if (!user) {
+//       return res.status(401).json({
+//         message: "User not found",
+//       });
+//     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        message: "Invalid credentials",
-      });
-    }
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid) {
+//       return res.status(401).json({
+//         message: "Invalid credentials",
+//       });
+//     }
 
-    const token = jwt.sign(
-      { userId: user.id, password: user.password },
-      process.env.JWT_SECRET as string
-    );
+//     const token = jwt.sign(
+//       { userId: user.id, password: user.password },
+//       process.env.JWT_SECRET as string
+//     );
 
-    res.status(200).json({
-      message: "Login successful",
-      userName: user.name,
-      token,
-    });
-  } catch (error: unknown) {
-    console.log(error);
-    res.status(500).json({
-      message: "Could not login user",
-      error: error instanceof Error ? error.message : "Unknown error occured",
-    });
-  }
-});
+//     res.status(200).json({
+//       message: "Login successful",
+//       userName: user.name,
+//       token,
+//     });
+//   } catch (error: unknown) {
+//     console.log(error);
+//     res.status(500).json({
+//       message: "Could not login user",
+//       error: error instanceof Error ? error.message : "Unknown error occured",
+//     });
+//   }
+// });
 
-app.post("/room", middleware, async (req: Request, res: Response) => {
+app.post("/api/create-room", middleware, async (req: Request, res: Response) => {
   const roomData = createRoomSchema.safeParse(req.body);
   if (!roomData.success) {
     return res.status(400).json({
@@ -137,7 +137,7 @@ app.post("/room", middleware, async (req: Request, res: Response) => {
   }
 });
 
-app.get("/chat/:slug", middleware, async (req: Request, res: Response) => {
+app.get("/api/chat/:slug", middleware, async (req: Request, res: Response) => {
   const { slug } = req.params;
   if (!slug) {
     return res.status(400).json({
