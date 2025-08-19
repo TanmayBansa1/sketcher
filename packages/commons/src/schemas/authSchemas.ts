@@ -11,8 +11,12 @@ export const signinSchema = z.object({
     password: z.string().min(8),
 });
 export const decodedTokenSchema = z.object({
-    userId: z.string(),
-    password: z.string(),
+    sub: z.string(),
+    exp: z.number(),
+    iat: z.number(),
+    nbf: z.number(),
+    jti: z.string(),
+    azp: z.string(),
 });
 export type SignupSchema = z.infer<typeof signupSchema>;
 export type SigninSchema = z.infer<typeof signinSchema>;
