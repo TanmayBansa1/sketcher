@@ -127,6 +127,7 @@ app.post("/api/create-room", middleware, async (req: Request, res: Response) => 
     res.status(201).json({
       message: "Room created successfully",
       roomName: room.name,
+      roomId: room.id
     });
   } catch (error: unknown) {
     console.log(error);

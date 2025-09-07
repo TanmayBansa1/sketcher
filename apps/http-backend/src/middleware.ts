@@ -6,16 +6,11 @@ import Cookies from "cookies";
 export default async function middleware(req: Request, res: Response, next: NextFunction){
   const publicKey = process.env.CLERK_PEM_PUBLIC_KEY;
   
-  // Debug: Check if public key is loaded
   if (!publicKey) {
     console.error("CLERK_PEM_PUBLIC_KEY environment variable is not set");
     return res.status(500).json({ error: 'Server configuration error' });
   }
-  
-  // Debug: Log the first and last few characters of the public key
-  console.log("Public key loaded:", publicKey.substring(0, 50) + "..." + publicKey.substring(publicKey.length - 50));
-  
-  // Get token from Authorization header
+    
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     console.log("No valid Authorization header");
@@ -30,7 +25,6 @@ export default async function middleware(req: Request, res: Response, next: Next
     let decoded;
     const permittedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
     
-    // Verify Clerk JWT token
     decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] }) as DecodedTokenSchema;
     console.log("Token decoded successfully");
     
