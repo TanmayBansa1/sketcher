@@ -17,7 +17,7 @@ export function checkUserToken(ws: WebSocket, token: string | null) {
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedTokenSchema;
 
-  if(!decoded.userId){
+  if(!decoded.sub){
     console.log('Invalid token');
     ws.send(JSON.stringify({
       type: 'error',
@@ -27,7 +27,7 @@ export function checkUserToken(ws: WebSocket, token: string | null) {
     return;
   }
 
-    return decoded.userId;
+    return decoded.sub;
   } catch (error) {
     console.error('Error checking user token:', error);
     ws.send(JSON.stringify({
