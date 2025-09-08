@@ -46,6 +46,6 @@ model Chat{
   room      Room     @relation(fields: [roomId], references: [id])
   roomId    String
   message   String
-  sender    User     @relation(fields: [senderId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [clerkId])
   senderId  String
 }
