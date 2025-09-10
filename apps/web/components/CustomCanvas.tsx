@@ -2,8 +2,8 @@
 import { useEffect, useRef } from "react";
 import { initDraw } from "@/lib/draw";
 import { useElementSize } from "@/lib/useElementSize";
-
-export default function CustomCanvas( { room: _room }: {room: {name: string, slug: string, description: string}}) {
+import {type Room } from "@/lib/types";
+export default function CustomCanvas( { room: room }: {room: Room}) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement | null>(null);
@@ -12,9 +12,9 @@ export default function CustomCanvas( { room: _room }: {room: {name: string, slu
 	useEffect(() => {
 		if (canvasRef.current) {
 			const canvas = canvasRef.current;
-			initDraw(canvas);
+			initDraw(canvas, room);
 		}
-	}, [dimensions, canvasRef]);
+	}, [dimensions, canvasRef, room]);
 
 	return (
 		<div ref={containerRef} style={{ width: "100%", height: "100%" }}>
