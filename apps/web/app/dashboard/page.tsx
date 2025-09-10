@@ -1,55 +1,31 @@
-"use client";
 import { SignOutButton } from "@clerk/nextjs";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { syncUser } from "@/lib/sync-user";
 import { CreateRoomModal } from "@/components/createRoomModal";
 import { LoaderOne } from "@/components/ui/loader";
 import { LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-export default function Dashboard() {
-  const [isSyncing, setIsSyncing] = useState(true);
-  const [syncError, setSyncError] = useState<string | null>(null);
-  useEffect(() => {
-    const sync = async () => {
-      try {
-        await syncUser();
-      } catch (error) {
-        console.error("Error syncing user:", error);
-        setSyncError("There was an error syncing your data. Please try reloading the page or signing up again.");
-      } finally {
-        setIsSyncing(false);
-      }
-    };
-    sync();
-  }, []);
-
-  if (isSyncing) {
+import { getExistingRooms } from "@/lib/roomUtils";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation"
+export default async function Dashboard() {
+  await syncUser();
+  const { userId } = await auth();
+  if (!userId) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
         <div className="text-center flex flex-col items-center gap-4">
           <LoaderOne></LoaderOne>
-          <p className="text-emerald-600">Setting up your dashboard...</p>
+          <p className="text-emerald-600">Redirecting...</p>
         </div>
       </div>
     );
   }
 
-  if (syncError) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
-        <div className="text-center">
-          <div className="text-red-500 mb-4">⚠️</div>
-          <p className="text-red-600 mb-4">Error setting up your account</p>
-          <p className="text-gray-600 text-sm">{syncError}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+  const existingRooms = await getExistingRooms(userId);
+
+  const handleRoomNavigation = (roomId: string)=>{
+    redirect(`/room/${roomId}`);
   }
 
   return (
@@ -82,9 +58,20 @@ export default function Dashboard() {
           </p>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 border border-dashed border-gray-300 rounded-lg p-4 mt-4">
+          {/* Display the rooms that the user has created */}
+          {existingRooms.map((room) => (
+            <div key={room.id} className="border border-dashed border-gray-300 rounded-lg p-4 cursor-pointer" onClick={handleRoomNavigation(room.id)}>
+              <h3 className="text-lg font-semibold text-gray-800">{room.name}</h3>
+              <p className="text-gray-600">{room.description}</p>
+            </div>
+          ))}
+        </div>
+
         <div className=" w-fit mt-8">
           <CreateRoomModal></CreateRoomModal>
         </div>
+
       </div>
     </div>
   );
