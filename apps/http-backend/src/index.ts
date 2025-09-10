@@ -138,7 +138,7 @@ app.post("/api/create-room", middleware, async (req: Request, res: Response) => 
   }
 });
 
-app.get("/api/chat/:slug", middleware, async (req: Request, res: Response) => {
+app.get("/api/shapes/:slug", middleware, async (req: Request, res: Response) => {
   const { slug } = req.params;
   if (!slug) {
     return res.status(400).json({
@@ -152,7 +152,7 @@ app.get("/api/chat/:slug", middleware, async (req: Request, res: Response) => {
 
     if (!room) {
       return res.status(404).json({
-        message: "Room not found for the given uid",
+        message: "Room not found for the given slug",
       });
     }
 

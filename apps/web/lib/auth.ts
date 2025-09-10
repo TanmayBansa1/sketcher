@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 
-export const getAuthToken = async () => {
+export const getAuthTokenServer = async () => {
   const { getToken } = await auth();
   const token = await getToken();
   if (!token) {
@@ -8,3 +8,4 @@ export const getAuthToken = async () => {
   }
   return token;
 };
+
