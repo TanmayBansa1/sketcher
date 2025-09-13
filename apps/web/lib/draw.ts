@@ -1,6 +1,6 @@
 import axios from "axios";
-import { Room, Shape } from "./types";
-export function initDraw(canvas: HTMLCanvasElement, room: Room) {
+import { Shape } from "./types";
+export function initDraw(canvas: HTMLCanvasElement, roomSlug: string, socket: WebSocket | null) {
     const ctx = canvas.getContext("2d");
     if(!ctx) return;
     ctx.strokeStyle = "red";
@@ -10,10 +10,12 @@ export function initDraw(canvas: HTMLCanvasElement, room: Room) {
     // Load existing shapes asynchronously
     (async () => {
         try {
-            existingShapes = await getExistingShapes(room.slug);
+            const shapes = await getExistingShapes(roomSlug);
+            existingShapes = Array.isArray(shapes) ? shapes : [];
             clearCanvas(ctx, existingShapes);
         } catch (error) {
             console.error("Failed to load existing shapes:", error);
+            existingShapes = [];
         }
     })();
     let startX = 0;
@@ -39,12 +41,19 @@ export function initDraw(canvas: HTMLCanvasElement, room: Room) {
         isDrawing = false;
         width = e.clientX - startX;
         height = e.clientY - startY;
-        existingShapes.push({
-            name: "rectangle",
-            x: startX,
-            y: startY,
-            width, height
-        })
+        const shape = {
+          name: "rectangle",
+          x: startX,
+          y: startY,
+          width,
+          height,
+        } as Shape;
+        existingShapes.push(shape);
+        socket?.send(JSON.stringify({
+            type: "room_message",
+            roomSlug: roomSlug,
+            message: JSON.stringify(shape)
+        }))
     })
 }
 
@@ -52,6 +61,7 @@ function clearCanvas(ctx: CanvasRenderingContext2D, existingShapes: Shape[]) {
 
     if(!ctx) return;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if(!Array.isArray(existingShapes) || existingShapes.length === 0) return;
     existingShapes.forEach(shape => {
         if(shape.name === "rectangle") {
             ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
@@ -66,17 +76,16 @@ function clearCanvas(ctx: CanvasRenderingContext2D, existingShapes: Shape[]) {
             ctx.stroke();
         }
     })
+    return;
 }
 
 async function getExistingShapes(roomSlug: string): Promise<Shape[]> {
     try {
         const _response = await axios.get(`/api/shapes/${roomSlug}`);
-        
-        // Backend returns { chats: [...] } but we need shapes
-        // For now, return empty array since the backend endpoint returns chats, not shapes
-        return [] as Shape[];
+        const data = _response.data;
+        return Array.isArray(data) ? data : [];
     } catch (error) {
         console.error("Error getting existing shapes:", error);
-        return [] as Shape[];
+        return [];
     }
 }

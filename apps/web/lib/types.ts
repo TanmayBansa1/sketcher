@@ -18,7 +18,8 @@ export type Shape = {
 }
 
 export interface Room{
+    id: string,
     name: string,
     slug: string,
-    description?: string
+    description: string | null
 }

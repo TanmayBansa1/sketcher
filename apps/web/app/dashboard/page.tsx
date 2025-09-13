@@ -7,7 +7,7 @@ import { LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getExistingRooms } from "@/lib/roomUtils";
 import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation"
+import  RoomCard  from "@/components/RoomCard";
 export default async function Dashboard() {
   await syncUser();
   const { userId } = await auth();
@@ -23,10 +23,6 @@ export default async function Dashboard() {
   }
 
   const existingRooms = await getExistingRooms(userId);
-
-  const handleRoomNavigation = (roomId: string)=>{
-    redirect(`/room/${roomId}`);
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -61,10 +57,7 @@ export default async function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 border border-dashed border-gray-300 rounded-lg p-4 mt-4">
           {/* Display the rooms that the user has created */}
           {existingRooms.map((room) => (
-            <div key={room.id} className="border border-dashed border-gray-300 rounded-lg p-4 cursor-pointer" onClick={handleRoomNavigation(room.id)}>
-              <h3 className="text-lg font-semibold text-gray-800">{room.name}</h3>
-              <p className="text-gray-600">{room.description}</p>
-            </div>
+            <RoomCard key={room.id} room={room} />
           ))}
         </div>
 
