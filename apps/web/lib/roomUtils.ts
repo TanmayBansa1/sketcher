@@ -1,7 +1,7 @@
 "use server";
 import { CreateRoomSchema } from "@repo/commons/roomSchemas";
 import axios, { AxiosResponse } from "axios";
-import { getAuthTokenServer } from "./auth-server";
+import { getAuthTokenServer } from "./auth";
 import db from "@repo/db/prisma";
 
 export const createRoom = async (roomData: CreateRoomSchema) => {
@@ -15,7 +15,7 @@ export const createRoom = async (roomData: CreateRoomSchema) => {
     console.log("Sending room data:", roomData);
     const response: AxiosResponse<{
       roomName: string;
-      roomId: string;
+      roomSlug: string;
       message: string;
     }> = await axios.post(`${backendUrl}/api/create-room`, roomData, {
       headers: {

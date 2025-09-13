@@ -26,7 +26,7 @@ export function CreateRoomModal() {
       const response = await createRoom({ name, slug, description, password });
       console.log("Room created:", response);
       toast.success("Room created successfully");
-      router.push(`/room/${response.roomId}`);
+      router.push(`/room/${response.roomSlug}`);
       // Reset form
       setName("");
       setSlug("");
