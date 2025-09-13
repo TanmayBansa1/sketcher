@@ -1,22 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { getAuthTokenServer } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const token = await getAuthTokenServer();
     const { slug } = await params;
-    const { getToken } = await auth();
-    const token = await getToken();
-
-    if (!token) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
 
     const backendUrl = process.env.HTTP_BACKEND_URL || "http://localhost:3001";
     const response = await axios.get(`${backendUrl}/api/shapes/${slug}`, {
@@ -29,8 +21,14 @@ export async function GET(
     return NextResponse.json(response.data);
   } catch (error) {
     console.error("Error in shapes API route:", error);
+    if (axios.isAxiosError(error)) {
+      return NextResponse.json(
+        { message: error.response?.data.message },
+        { status: error.response?.status || 500 }
+      );
+    }
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: error instanceof Error ? error.message : "Unknown error occured" },
       { status: 500 }
     );
   }

@@ -1,19 +1,10 @@
-import { auth } from "@clerk/nextjs/server";
+import { getAuthTokenServer } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 export async function POST(request: NextRequest) {
   try {
-    const { getToken } = await auth();
-    const token = await getToken();
-
-    if (!token) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
+    const token = await getAuthTokenServer();
     const body = await request.json();
     const backendUrl = process.env.HTTP_BACKEND_URL || "http://localhost:3001";
     
@@ -27,8 +18,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response.data);
   } catch (error) {
     console.error("Error in create-room API route:", error);
+    if (axios.isAxiosError(error)) {
+      return NextResponse.json(
+        { message: error.response?.data.message },
+        { status: error.response?.status || 500 }
+      );
+    }
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: error instanceof Error ? error.message : "Unknown error occured" },
       { status: 500 }
     );
   }
