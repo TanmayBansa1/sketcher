@@ -18,7 +18,7 @@ export async function GET(
       },
     });
 
-    return NextResponse.json(response.data);
+    return NextResponse.json(response.data.shapes);
   } catch (error) {
     console.error("Error in shapes API route:", error);
     if (axios.isAxiosError(error)) {

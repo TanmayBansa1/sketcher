@@ -34,7 +34,13 @@ export default function MainCanvas({ roomSlug, token, wsUrl }: MainCanvasProps) 
         };
       }, [roomSlug, token, wsUrl]);
 
-    return (
-      <CustomCanvas roomSlug={roomSlug} socket={socket}/>
-    ) 
+    return <div className="h-screen w-screen">
+      {socket && (
+        
+        <CustomCanvas roomSlug={roomSlug} socket={socket}/>
+      )}
+      { !socket && (
+        <div>Loading...</div>
+      )}
+    </div> 
 }

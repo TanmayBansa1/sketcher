@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { initDraw } from "@/lib/draw";
 import { useElementSize } from "@/lib/useElementSize";
 
-export default function CustomCanvas( { roomSlug,socket }: {roomSlug: string, socket: WebSocket | null}) {
+export default function CustomCanvas( { roomSlug,socket }: {roomSlug: string, socket: WebSocket}) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement | null>(null);
