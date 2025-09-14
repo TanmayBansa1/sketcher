@@ -105,7 +105,7 @@ export async function handleMessage(userId: string, messageData: UserRequestMess
           return;
         }
 
-        await db.chat.create({
+        await db.shape.create({
             data: {
                 roomId: roomId,
                 senderId: userId,

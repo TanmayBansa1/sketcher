@@ -23,7 +23,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   rooms     Room[]
-  chats     Chat[]
+  shapes    Shape[]
 }
 
 model Room {
@@ -36,10 +36,10 @@ model Room {
   updatedAt DateTime @updatedAt
   owner     User     @relation(fields: [ownerId], references: [clerkId])
   ownerId   String
-  chats     Chat[]
+  shapes    Shape[]
 }
 
-model Chat{
+model Shape{
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

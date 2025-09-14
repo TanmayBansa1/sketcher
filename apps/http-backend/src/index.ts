@@ -156,7 +156,7 @@ app.get("/api/shapes/:slug", middleware, async (req: Request, res: Response) => 
       });
     }
 
-    const chats = await db.chat.findMany({
+    const shapes = await db.shape.findMany({
       where: {
         roomId: room.id,
       },
@@ -167,13 +167,13 @@ app.get("/api/shapes/:slug", middleware, async (req: Request, res: Response) => 
     });
 
     res.status(200).json({
-      message: "Chats fetched successfully",
-      chats,
+      message: "shapes fetched successfully",
+      shapes,
     });
   } catch (error: unknown) {
     console.log(error);
     res.status(500).json({
-      message: "Could not fetch chats",
+      message: "Could not fetch shapes",
       error: error instanceof Error ? error.message : "Unknown error occured",
     });
   }
