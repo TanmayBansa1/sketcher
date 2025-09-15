@@ -1,28 +1,38 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { initDraw } from "@/lib/draw";
-import { useElementSize } from "@/lib/useElementSize";
+import { useEffect, useRef, useState } from "react";
+import { initDraw } from "@/lib/draw/draw";
+import { Circle, LineSquiggleIcon, RectangleHorizontalIcon } from "lucide-react";
+import ShapeSelectionIcon from "./ShapeSelectionIcon";
 
 export default function CustomCanvas( { roomSlug,socket }: {roomSlug: string, socket: WebSocket}) {
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement | null>(null);
-	const dimensions = useElementSize(containerRef);
+	const [currentShape, setCurrentShape] = useState<"rectangle" | "circle" | "line">("rectangle");
 
 	useEffect(() => {
 		if (canvasRef.current) {
 			const canvas = canvasRef.current;
-			initDraw(canvas, roomSlug, socket);
+			const cleanup = initDraw(canvas, roomSlug, socket, currentShape);
+			return () => {
+				if (typeof cleanup === "function") cleanup();
+			};
 		}
-	}, [dimensions, canvasRef, roomSlug, socket]);
+	}, [canvasRef, roomSlug, socket, currentShape]);
 
 	return (
-		<div ref={containerRef} className="bg-amber-100" style={{ width: "100%", height: "100%" }}>
-			{dimensions.width > 0 && dimensions.height > 0 && (
-				<canvas ref={canvasRef} width={dimensions.width} height={dimensions.height}>
+		<div ref={containerRef} className="bg-amber-100 absolute box-border w-full h-full">
+				<canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}>
 
 				</canvas>
-			)}
+			<div className="absolute top-0 p-2 gap-2 w-full bg-amber-100 flex items-center justify-center">
+				<ShapeSelectionIcon icon={<RectangleHorizontalIcon />} onClick={() => {setCurrentShape("rectangle")}} isSelected={currentShape === "rectangle"}>
+				</ShapeSelectionIcon>
+				<ShapeSelectionIcon icon={<Circle />} onClick={() => {setCurrentShape("circle")}} isSelected={currentShape === "circle"}>
+				</ShapeSelectionIcon>
+				<ShapeSelectionIcon icon={<LineSquiggleIcon/>} onClick={() => {setCurrentShape("line")}} isSelected={currentShape === "line"}>
+				</ShapeSelectionIcon>
+			</div>
 		</div>
 	)
 }
