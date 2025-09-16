@@ -1,0 +1,9 @@
+{
+    "extends": ["//"],
+    "tasks": {
+        "build": {
+            "outputs": [".next/**", "!.next/cache/**"],
+            "env": ["HTTP_BACKEND_URL", "WS_BACKEND_URL"]
+        }
+    }
+}

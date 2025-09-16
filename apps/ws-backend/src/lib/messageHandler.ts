@@ -12,7 +12,20 @@ export async function handleMessage(userId: string, messageData: UserRequestMess
       }));
       return;
     }
-    const { type, roomId, message } = parsedMessage.data;
+    const { type, roomSlug, message } = parsedMessage.data;
+    const room = await db.room.findUnique({
+      where: {
+        slug: roomSlug
+      }
+    });
+    if (!room) {
+      state.broadcastToUser(userId, JSON.stringify({
+        type: 'error',
+        message: 'Room not found'
+      }));
+      return;
+    }
+    const roomId = room.id;
     switch (type) {
       case 'join_room':
         if (!roomId) {
@@ -22,12 +35,11 @@ export async function handleMessage(userId: string, messageData: UserRequestMess
           }));
           return;
         }
-  
-        // Create room if it doesn't exist
-        if (!state.getRoom(roomId)) {
+
+        if(!state.getRoom(roomId)) {
           state.createRoom(roomId);
         }
-  
+        
         if (state.joinRoom(userId, roomId)) {
           // Notify user of successful join
           state.broadcastToUser(userId, JSON.stringify({
@@ -93,7 +105,7 @@ export async function handleMessage(userId: string, messageData: UserRequestMess
           return;
         }
 
-        await db.chat.create({
+        await db.shape.create({
             data: {
                 roomId: roomId,
                 senderId: userId,
