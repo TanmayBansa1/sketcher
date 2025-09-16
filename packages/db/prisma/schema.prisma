@@ -16,13 +16,14 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
+  clerkId   String   @unique
   email     String   @unique
   password  String?
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   rooms     Room[]
-  chats     Chat[]
+  shapes    Shape[]
 }
 
 model Room {
@@ -33,18 +34,18 @@ model Room {
   slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  owner     User     @relation(fields: [ownerId], references: [id])
+  owner     User     @relation(fields: [ownerId], references: [clerkId])
   ownerId   String
-  chats     Chat[]
+  shapes    Shape[]
 }
 
-model Chat{
+model Shape{
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   room      Room     @relation(fields: [roomId], references: [id])
   roomId    String
   message   String
-  sender    User     @relation(fields: [senderId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [clerkId])
   senderId  String
 }

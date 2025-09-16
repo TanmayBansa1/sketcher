@@ -1,5 +1,5 @@
 import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui";
+import { Button } from "../components/ui/button";
 import Link from "next/link";
 
 type Props = Omit<ImageProps, "src"> & {
